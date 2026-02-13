@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import NextTopLoader from "nextjs-toploader";
+import MaintenanceGuard from "@/components/MaintenanceGuard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,9 +32,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black min-h-screen flex flex-col`}
       >
         <NextTopLoader color="#FE2C55" showSpinner={false} />
-        <Navbar />
-        <main className="flex-grow pt-16">{children}</main>
-        <Footer />
+        <MaintenanceGuard>
+          <Navbar />
+          <main className="grow pt-16">{children}</main>
+          <Footer />
+        </MaintenanceGuard>
       </body>
     </html>
   );

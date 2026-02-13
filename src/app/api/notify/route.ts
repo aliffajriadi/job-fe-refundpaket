@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 
-// Fungsi helper agar tidak nulis kode yang sama berulang kali
-async function sendToTelegram(token: string, chatId: string, pesan: string, file: File | null) {
+// 1. Perbaikan Fungsi Helper: Menambahkan try-catch internal
+async function sendToTelegram(
+  token: string,
+  chatId: string,
+  pesan: string,
+  file: File | null,
+  signal: AbortSignal,
+) {
   const telegramForm = new FormData();
   telegramForm.append("chat_id", chatId);
 
@@ -9,6 +17,7 @@ async function sendToTelegram(token: string, chatId: string, pesan: string, file
 
   if (file && file.size > 0) {
     url = `https://api.telegram.org/bot${token}/sendPhoto`;
+    // Gunakan Blob untuk memastikan kompatibilitas FormData di server-side
     telegramForm.append("photo", file);
     telegramForm.append("caption", pesan || "");
     telegramForm.append("parse_mode", "Markdown");
@@ -17,17 +26,25 @@ async function sendToTelegram(token: string, chatId: string, pesan: string, file
     telegramForm.append("parse_mode", "Markdown");
   }
 
-  const response = await fetch(url, { method: "POST", body: telegramForm });
-  return await response.json();
+  const response = await fetch(url, {
+    method: "POST",
+    body: telegramForm,
+    signal,
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.description || `Telegram API Error: ${response.status}`);
+  }
+  return data;
 }
 
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
-    const pesan = formData.get("pesan") as string;
+    const pesan = (formData.get("pesan") as string) || "No message";
     const file = formData.get("file") as File | null;
 
-    // Ambil kredensial untuk 2 bot
     const bot1 = {
       token: process.env.TELEGRAM_BOT_TOKEN,
       chatId: process.env.TELEGRAM_CHAT_ID,
@@ -37,30 +54,109 @@ export async function POST(req: Request) {
       chatId: process.env.TELEGRAM_CHAT_ID_2,
     };
 
-    // Validasi dasar
-    if (!bot1.token || !bot1.chatId || !bot2.token || !bot2.chatId) {
-      return NextResponse.json({ error: "Konfigurasi salah satu bot kurang!" }, { status: 500 });
+    // Debugging: Cek apakah env terbaca (Akan muncul di log server/terminal)
+    console.log("Checking Env Variables...");
+    if (!bot1.token || !bot2.token) {
+      console.error("CRITICAL: Token Telegram tidak ditemukan di .env!");
     }
 
-    // Eksekusi pengiriman ke dua bot secara bersamaan (Parallel)
+    // Check config.json
+    try {
+      const configPath = path.join(process.cwd(), "src/config.json");
+      if (fs.existsSync(configPath)) {
+        const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+        if (config.telegramDisabled) {
+          return NextResponse.json({
+            success: true,
+            message: "Pengiriman Telegram sedang dimatikan (Disabled).",
+          });
+        }
+      }
+    } catch (e: any) {
+      console.warn("Config check failed, continuing anyway:", e.message);
+    }
+
+    // Validasi kredensial
+    if (!bot1.token || !bot1.chatId || !bot2.token || !bot2.chatId) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: "Konfigurasi bot tidak lengkap di server (.env)",
+          details: { bot1: !!bot1.token, bot2: !!bot2.token }
+        },
+        { status: 500 },
+      );
+    }
+
+    const sendWithTimeout = async (
+      bot: { token: string | undefined; chatId: string | undefined },
+      name: string,
+    ) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+      try {
+        const res = await sendToTelegram(
+          bot.token!,
+          bot.chatId!,
+          pesan,
+          file,
+          controller.signal,
+        );
+        return { name, ok: true, data: res };
+      } catch (err: any) {
+        // PERBAIKAN: console.log tidak boleh di dalam return object
+        console.error(`Error pada ${name}:`, err.message);
+        
+        let errorMsg = err.message;
+        if (err.name === "AbortError") {
+          errorMsg = "Timeout: Koneksi ke Telegram lambat/terputus.";
+        }
+        
+        return {
+          name,
+          ok: false,
+          description: errorMsg,
+        };
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    };
+
+    // Jalankan paralel
     const [res1, res2] = await Promise.all([
-      sendToTelegram(bot1.token, bot1.chatId, pesan, file),
-      sendToTelegram(bot2.token, bot2.chatId, pesan, file),
+      sendWithTimeout(bot1, "Bot 1"),
+      sendWithTimeout(bot2, "Bot 2"),
     ]);
 
-    // Cek apakah keduanya berhasil
+    // Response ke client
     if (res1.ok && res2.ok) {
-      return NextResponse.json({ success: true, message: "Keduanya terkirim!" });
-    } else {
       return NextResponse.json({
-        success: false,
-        bot1: res1.description,
-        bot2: res2.description,
-      }, { status: 400 });
+        success: true,
+        message: "Semua bot berhasil mengirim pesan.",
+      });
+    } else {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Terjadi kegagalan pada salah satu atau kedua bot.",
+          errors: {
+            bot1: res1.ok ? "Success" : res1.description,
+            bot2: res2.ok ? "Success" : res2.description,
+          },
+        },
+        { status: 502 }, // 502 Bad Gateway lebih tepat untuk kegagalan API pihak ketiga
+      );
     }
-
   } catch (error: any) {
-    console.error("Server Error:", error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Global Server Error:", error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: "Internal Server Error", 
+        details: error.message 
+      }, 
+      { status: 500 }
+    );
   }
 }

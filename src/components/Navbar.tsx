@@ -30,6 +30,12 @@ export default function Navbar() {
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
             <Link
+              href="/"
+              className="text-gray-900 hover:text-[#FE2C55] font-bold text-sm tracking-tight transition-colors"
+            >
+              BERANDA
+            </Link>
+            <Link
               href="/bantuan"
               className="text-gray-900 hover:text-[#FE2C55] font-bold text-sm tracking-tight transition-colors"
             >
@@ -65,6 +71,12 @@ export default function Navbar() {
       {isOpen && (
         <div className="md:hidden bg-white border-b border-gray-100 animate-in slide-in-from-top-5 duration-200">
           <div className="px-4 pt-2 pb-6 space-y-3">
+            <Link
+              href="/"
+              className="block px-3 py-3 rounded-xl text-base font-black text-gray-900 hover:bg-gray-50 transition-colors"
+            >
+              BERANDA
+            </Link>
             <Link
               href="/bantuan"
               className="block px-3 py-3 rounded-xl text-base font-black text-gray-900 hover:bg-gray-50 transition-colors"
