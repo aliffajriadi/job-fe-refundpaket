@@ -8,12 +8,15 @@ function readConfig() {
   try {
     const data = fs.readFileSync(configPath, "utf-8");
     return JSON.parse(data);
-  } catch (error) {
+  } catch {
     return { telegramDisabled: false, webDisabled: false };
   }
 }
 
-function writeConfig(config: any) {
+function writeConfig(config: {
+  telegramDisabled: boolean;
+  webDisabled: boolean;
+}) {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2), "utf-8");
 }
 
@@ -36,7 +39,8 @@ export async function POST(req: Request) {
 
     writeConfig(config);
     return NextResponse.json({ success: true, config });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

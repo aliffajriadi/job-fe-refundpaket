@@ -34,7 +34,9 @@ async function sendToTelegram(
 
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.description || `Telegram API Error: ${response.status}`);
+    throw new Error(
+      data.description || `Telegram API Error: ${response.status}`,
+    );
   }
   return data;
 }
@@ -72,17 +74,18 @@ export async function POST(req: Request) {
           });
         }
       }
-    } catch (e: any) {
-      console.warn("Config check failed, continuing anyway:", e.message);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Unknown error";
+      console.warn("Config check failed, continuing anyway:", message);
     }
 
     // Validasi kredensial
     if (!bot1.token || !bot1.chatId || !bot2.token || !bot2.chatId) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: "Konfigurasi bot tidak lengkap di server (.env)",
-          details: { bot1: !!bot1.token, bot2: !!bot2.token }
+          details: { bot1: !!bot1.token, bot2: !!bot2.token },
         },
         { status: 500 },
       );
@@ -104,15 +107,16 @@ export async function POST(req: Request) {
           controller.signal,
         );
         return { name, ok: true, data: res };
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Unknown error";
         // PERBAIKAN: console.log tidak boleh di dalam return object
-        console.error(`Error pada ${name}:`, err.message);
-        
-        let errorMsg = err.message;
-        if (err.name === "AbortError") {
+        console.error(`Error pada ${name}:`, message);
+
+        let errorMsg = message;
+        if (err instanceof Error && err.name === "AbortError") {
           errorMsg = "Timeout: Koneksi ke Telegram lambat/terputus.";
         }
-        
+
         return {
           name,
           ok: false,
@@ -148,15 +152,16 @@ export async function POST(req: Request) {
         { status: 502 }, // 502 Bad Gateway lebih tepat untuk kegagalan API pihak ketiga
       );
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
     console.error("Global Server Error:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: "Internal Server Error", 
-        details: error.message 
-      }, 
-      { status: 500 }
+      {
+        success: false,
+        error: "Internal Server Error",
+        details: message,
+      },
+      { status: 500 },
     );
   }
 }

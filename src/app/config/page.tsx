@@ -37,8 +37,7 @@ export default function HiddenSettingsPage() {
         setConfig(data);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
         setLoading(false);
       });
   }, []);
@@ -68,7 +67,7 @@ export default function HiddenSettingsPage() {
         setMessage("Settings saved successfully!");
         setTimeout(() => setMessage(""), 3000);
       }
-    } catch (err) {
+    } catch {
       setMessage("Failed to save settings.");
     } finally {
       setSaving(false);

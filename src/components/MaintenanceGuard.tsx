@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, Clock, Hammer } from "lucide-react";
+import { motion } from "framer-motion";
+import { Clock, Hammer } from "lucide-react";
 
 export default function MaintenanceGuard({
   children,
