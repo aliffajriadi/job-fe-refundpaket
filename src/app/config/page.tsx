@@ -76,7 +76,7 @@ export default function HiddenSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center font-sans">
+      <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white flex items-center justify-center font-sans">
         <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
       </div>
     );
@@ -84,11 +84,11 @@ export default function HiddenSettingsPage() {
 
   if (!isAuthorized) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center font-sans p-6">
+      <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white flex items-center justify-center font-sans p-6">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="max-w-md w-full bg-zinc-900 border border-zinc-800 rounded-[32px] p-8 shadow-2xl"
+          className="max-w-md w-full bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-[32px] p-8 shadow-2xl dark:shadow-none"
         >
           <div className="w-16 h-16 bg-blue-600/10 rounded-2xl flex items-center justify-center mb-6 mx-auto border border-blue-500/20">
             <Lock className="w-8 h-8 text-blue-500" />
@@ -96,19 +96,19 @@ export default function HiddenSettingsPage() {
           <h1 className="text-2xl font-bold text-center mb-2">
             Restricted Area
           </h1>
-          <p className="text-zinc-500 text-center mb-8 text-sm">
+          <p className="text-gray-500 dark:text-zinc-500 text-center mb-8 text-sm">
             Please enter the security code to proceed
           </p>
 
           <form onSubmit={handleAuth} className="space-y-4">
             <div className="relative">
-              <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600" />
+              <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-zinc-600" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password..."
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-blue-500 transition-all font-mono text-white"
+                className="w-full bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-blue-500 transition-all font-mono text-black dark:text-white"
                 autoFocus
               />
             </div>
@@ -129,7 +129,7 @@ export default function HiddenSettingsPage() {
 
             <button
               type="submit"
-              className="w-full bg-white text-black font-bold py-4 rounded-2xl hover:bg-zinc-200 transition-all active:scale-[0.98]"
+              className="w-full bg-black dark:bg-white text-white dark:text-black font-bold py-4 rounded-2xl hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-[0.98]"
             >
               Confirm Identity
             </button>
@@ -140,7 +140,7 @@ export default function HiddenSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans p-6 sm:p-12">
+    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white font-sans p-6 sm:p-12">
       <div className="max-w-xl mx-auto">
         <header className="mb-12 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -151,14 +151,14 @@ export default function HiddenSettingsPage() {
               <h1 className="text-2xl font-bold tracking-tight">
                 Internal Settings
               </h1>
-              <p className="text-zinc-500 text-sm">
+              <p className="text-gray-500 dark:text-zinc-500 text-sm">
                 Update application status and services
               </p>
             </div>
           </div>
           <Link
             href="/"
-            className="text-zinc-400 hover:text-white transition-colors"
+            className="text-gray-400 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
@@ -169,7 +169,7 @@ export default function HiddenSettingsPage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-6 hover:border-blue-500/30 transition-all group"
+            className="bg-gray-50 dark:bg-zinc-900/50 border border-gray-100 dark:border-zinc-800 rounded-3xl p-6 hover:border-blue-500/30 transition-all group"
           >
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
@@ -182,7 +182,7 @@ export default function HiddenSettingsPage() {
                   <h2 className="font-semibold text-lg">
                     Telegram Notifications
                   </h2>
-                  <p className="text-zinc-500 text-sm">
+                  <p className="text-gray-500 dark:text-zinc-500 text-sm">
                     {config.telegramDisabled
                       ? "Notifications are currently DISABLED"
                       : "Notifications are active"}
@@ -210,7 +210,7 @@ export default function HiddenSettingsPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-6 hover:border-blue-500/30 transition-all group"
+            className="bg-gray-50 dark:bg-zinc-900/50 border border-gray-100 dark:border-zinc-800 rounded-3xl p-6 hover:border-blue-500/30 transition-all group"
           >
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
@@ -223,7 +223,7 @@ export default function HiddenSettingsPage() {
                   <h2 className="font-semibold text-lg">
                     Web Maintenance Mode
                   </h2>
-                  <p className="text-zinc-500 text-sm">
+                  <p className="text-gray-500 dark:text-zinc-500 text-sm">
                     {config.webDisabled
                       ? "Web is currently LOCKED with modal"
                       : "Web is publicly accessible"}
@@ -273,9 +273,9 @@ export default function HiddenSettingsPage() {
           </footer>
         </div>
 
-        <div className="mt-20 border-t border-zinc-900 pt-8 text-center">
-          <Shield className="w-8 h-8 text-zinc-800 mx-auto mb-2" />
-          <p className="text-zinc-700 text-[10px] tracking-widest uppercase">
+        <div className="mt-20 border-t border-gray-100 dark:border-zinc-900 pt-8 text-center">
+          <Shield className="w-8 h-8 text-gray-200 dark:text-zinc-800 mx-auto mb-2" />
+          <p className="text-gray-400 dark:text-zinc-700 text-[10px] tracking-widest uppercase">
             Admin Security Protocol v1.0.2
           </p>
         </div>

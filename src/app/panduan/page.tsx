@@ -54,14 +54,14 @@ export default function PanduanPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white pb-20">
+    <div className="min-h-screen bg-white dark:bg-zinc-950 pb-20 transition-colors duration-500">
       {/* Hero Panduan */}
-      <div className="bg-gray-50 pt-32 pb-16 px-4">
+      <div className="bg-gray-50 dark:bg-zinc-900/50 pt-32 pb-16 px-4 transition-colors duration-500">
         <div className="max-w-4xl mx-auto text-center">
           <motion.h1
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-5xl font-black text-black tracking-tighter mb-6"
+            className="text-5xl font-black text-black dark:text-white tracking-tighter mb-6"
           >
             PANDUAN <span className="text-[#FE2C55]">REFUND</span>
           </motion.h1>
@@ -69,7 +69,7 @@ export default function PanduanPage() {
             <input
               type="text"
               placeholder="Cari tutorial atau bantuan..."
-              className="w-full bg-white border-none rounded-full py-5 px-8 pr-16 shadow-2xl shadow-gray-200 font-bold text-black outline-none placeholder-gray-400"
+              className="w-full bg-white dark:bg-zinc-800 border-none rounded-full py-5 px-8 pr-16 shadow-2xl shadow-gray-200 dark:shadow-none font-bold text-black dark:text-white outline-none placeholder-gray-400 dark:placeholder-zinc-500"
             />
             <div className="absolute right-3 top-2.5 bg-[#FE2C55] p-3 rounded-full text-white">
               <Search className="w-5 h-5" />
@@ -85,15 +85,15 @@ export default function PanduanPage() {
             <motion.div
               key={i}
               whileHover={{ y: -5 }}
-              className="bg-white border-2 border-gray-50 rounded-[32px] p-8 shadow-sm hover:border-[#FE2C55]/20 group cursor-pointer transition-all"
+              className="bg-white dark:bg-zinc-900/50 border-2 border-gray-50 dark:border-zinc-800 rounded-[32px] p-8 shadow-sm hover:border-[#FE2C55]/20 dark:hover:border-[#FE2C55]/20 group cursor-pointer transition-all"
             >
-              <div className="w-14 h-14 bg-black rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#FE2C55] transition-colors">
+              <div className="w-14 h-14 bg-black dark:bg-zinc-800 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#FE2C55] dark:group-hover:bg-[#FE2C55] transition-colors">
                 <cat.icon className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-xl font-black text-black mb-2">
+              <h3 className="text-xl font-black text-black dark:text-white mb-2">
                 {cat.title}
               </h3>
-              <p className="text-gray-400 text-sm font-bold leading-snug">
+              <p className="text-gray-400 dark:text-gray-500 text-sm font-bold leading-snug">
                 {cat.desc}
               </p>
             </motion.div>
@@ -103,7 +103,7 @@ export default function PanduanPage() {
         {/* Steps Section */}
         <div className="space-y-12">
           <div className="text-center">
-            <h2 className="text-3xl font-black text-black tracking-tighter">
+            <h2 className="text-3xl font-black text-black dark:text-white tracking-tighter">
               ALUR PENGAJUAN
             </h2>
             <div className="w-20 h-2 bg-[#FE2C55] mx-auto mt-4 rounded-full"></div>
@@ -118,14 +118,14 @@ export default function PanduanPage() {
                 viewport={{ once: true }}
                 className="flex gap-6"
               >
-                <div className="text-6xl font-black text-gray-100 select-none">
+                <div className="text-6xl font-black text-gray-100 dark:text-zinc-900 select-none">
                   {step.num}
                 </div>
                 <div className="space-y-3">
-                  <h4 className="text-2xl font-black text-black tracking-tight">
+                  <h4 className="text-2xl font-black text-black dark:text-white tracking-tight">
                     {step.title}
                   </h4>
-                  <p className="text-gray-500 font-bold leading-relaxed">
+                  <p className="text-gray-500 dark:text-gray-400 font-bold leading-relaxed">
                     {step.desc}
                   </p>
                 </div>
@@ -138,13 +138,13 @@ export default function PanduanPage() {
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          className="mt-24 p-10 bg-black rounded-[40px] text-white flex flex-col md:flex-row items-center justify-between gap-8"
+          className="mt-24 p-10 bg-black dark:bg-zinc-900 rounded-[40px] text-white flex flex-col md:flex-row items-center justify-between gap-8"
         >
           <div className="space-y-2 text-center md:text-left">
             <h3 className="text-3xl font-black tracking-tight">
               Sudah Paham Caranya?
             </h3>
-            <p className="text-gray-400 font-bold">
+            <p className="text-gray-400 dark:text-gray-500 font-bold">
               Mulai ajukan pengembalian paket anda sekarang juga.
             </p>
           </div>

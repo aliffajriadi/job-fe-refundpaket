@@ -2,25 +2,25 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full bg-white border-t border-gray-100 py-12">
+    <footer className="w-full bg-linear-to-t from-gray-50/80 to-white dark:from-zinc-900/80 dark:to-zinc-950 border-t border-gray-100/60 dark:border-zinc-800/60 py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex flex-col items-center md:items-start gap-2">
-            <span className="font-black text-2xl tracking-tighter text-black">
-              REFUND<span className="text-[#FE2C55]">PAKET</span>
+            <span className="font-black text-2xl tracking-tighter text-black dark:text-white">
+              PAKET<span className="text-[#FE2C55]">REFUND</span>
             </span>
-            <p className="text-gray-400 font-bold text-sm">
+            <p className="text-gray-400 dark:text-gray-500 font-semibold text-sm">
               Solusi pengembalian paket anda.
             </p>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3">
             <a
               href="#"
-              className="w-10 h-10 bg-black rounded-lg flex items-center justify-center hover:bg-[#FE2C55] transition-colors"
+              className="w-11 h-11 bg-black/90 dark:bg-white rounded-2xl flex items-center justify-center hover:bg-[#FE2C55] dark:hover:bg-[#FE2C55] transition-all shadow-lg shadow-black/5 hover:shadow-red-200/40 active:scale-90 group"
             >
               <svg
-                className="w-5 h-5 text-white"
+                className="w-5 h-5 text-white dark:text-black group-hover:text-white"
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -29,10 +29,10 @@ export default function Footer() {
             </a>
             <a
               href="#"
-              className="w-10 h-10 bg-black rounded-lg flex items-center justify-center hover:bg-[#FE2C55] transition-colors"
+              className="w-11 h-11 bg-black/90 dark:bg-white rounded-2xl flex items-center justify-center hover:bg-[#FE2C55] dark:hover:bg-[#FE2C55] transition-all shadow-lg shadow-black/5 hover:shadow-red-200/40 active:scale-90 group"
             >
               <svg
-                className="w-5 h-5 text-white"
+                className="w-5 h-5 text-white dark:text-black group-hover:text-white"
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -41,8 +41,8 @@ export default function Footer() {
             </a>
           </div>
 
-          <p className="text-gray-400 font-bold text-xs">
-            &copy; {currentYear} REFUNDPAKET. Semua hak dilindungi.
+          <p className="text-gray-400 dark:text-gray-600 font-semibold text-xs">
+            &copy; {currentYear} PAKETREFUND. All rights reserved.
           </p>
         </div>
       </div>

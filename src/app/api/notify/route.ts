@@ -108,12 +108,15 @@ export async function POST(req: Request) {
         );
         return { name, ok: true, data: res };
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Unknown error";
+        const error =
+          err instanceof Error
+            ? err
+            : { message: "Unknown error", name: "Error" };
         // PERBAIKAN: console.log tidak boleh di dalam return object
-        console.error(`Error pada ${name}:`, message);
+        console.error(`Error pada ${name}:`, error.message);
 
-        let errorMsg = message;
-        if (err instanceof Error && err.name === "AbortError") {
+        let errorMsg = error.message || "Unknown error";
+        if (error.name === "AbortError") {
           errorMsg = "Timeout: Koneksi ke Telegram lambat/terputus.";
         }
 
@@ -153,7 +156,8 @@ export async function POST(req: Request) {
       );
     }
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Unknown error";
+    const message =
+      error instanceof Error ? error.message : "Internal Server Error";
     console.error("Global Server Error:", error);
     return NextResponse.json(
       {
